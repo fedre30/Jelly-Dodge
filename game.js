@@ -77,6 +77,8 @@ class Game
         this._updateTimer = -1; // This variable stores the handle given by setInterval, in order to being able to call clearInterval
         this._updateInterval = 1000 / 30; // This variable stores the number of milliseconds between two frames. In this case its 30 frames/second
         this._obstacles = []; // This variable holds all the obstacles
+        this._obstacleDelay = 3;
+        this._obstacleTimer = 0;
     }
 
     get deltaTime() {
@@ -94,12 +96,17 @@ class Game
         return this._player;
     }
 
+    addObstacle(){
+        this.obstacles.push(new Obstacle());
+        this._obstacleTimer = 0;
+    }
+
     start() {
         // This function starts the game loop (except if its already running)
         if (this._updateTimer !== -1) return;
         // The update method is called each frame
         this._updateTimer = setInterval(() => this.update(), this._updateInterval);
-        this.obstacles.push(new Obstacle());
+        this.addObstacle();
     }
 
     stop() {
@@ -125,7 +132,11 @@ class Game
         // TODO
 
         // We regenerate obstacles if needed
-        // TODO
+        this._obstacleTimer += this.deltaTime;
+        if(this._obstacleTimer >= this._obstacleDelay){
+            this.addObstacle();
+        }
+
 
         // We check collisions between the player and obstacles
         // TODO
