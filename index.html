@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Super Game</title>
+    <style>
+        html {
+            background-color: #111;
+        }
+        body {
+            overflow: hidden;
+        }
+        canvas {
+            --width: 80vw;
+            border: 1px solid #444;
+            display: block;
+            margin: 0 auto;
+            height: calc(var(--width) / 16 * 10); /* 16:10 is our game screen ratio */
+            width: var(--width);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="game-canvas"></canvas>
+    <script src="game.js"></script>
+</body>
+</html>
