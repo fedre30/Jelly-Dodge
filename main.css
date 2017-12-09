@@ -7,6 +7,11 @@ body{
 
 }
 
+
+.content{
+    margin: 0 auto;
+}
+
 .title{
     width: 712px;
     height: 175px;
@@ -48,4 +53,8 @@ body{
 
 .button a {
     text-decoration: none;
+}
+
+.button: hover {
+    
 }
