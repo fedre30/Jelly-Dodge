@@ -34,12 +34,27 @@ class Player
     get y() {
         return this._y;
     }
+    get playerBox(){
+        return{
+            left: this.x,
+            top: this.y,
+            right: this.x + PLAYER_WIDTH,
+            bottom: this.y + PLAYER_HEIGHT
+        }
+    }
 };
 
 
 function randomInt(min, max) {
 
     return (Math.random() * (max - min)) + min;
+}
+
+function collision(r1, r2) {
+    return !(r2.left > r1.right ||
+        r2.right < r1.left ||
+        r2.top > r1.bottom ||
+        r2.bottom < r1.top);
 }
 
 class Obstacle
@@ -62,6 +77,23 @@ class Obstacle
     }
     set y(newY) {
         this._y = newY;
+    }
+
+    get leftBox(){
+        return{
+            left: 0,
+            top: this.y,
+            right: this.leftWidth,
+            bottom: this.y + 1
+        }
+    }
+    get rightBox(){
+        return{
+            left: this.rightX,
+            top: this.y,
+            right: MAP_COLUMNS,
+            bottom: this.y + 1
+        }
     }
 }
 
@@ -115,6 +147,11 @@ class Game
         this._updateTime = -1;
     }
 
+    gameOver(){
+        this.stop();
+        alert('lolololololool');
+    };
+
     update() {
         // This function is called for each frame
 
@@ -139,7 +176,11 @@ class Game
 
 
         // We check collisions between the player and obstacles
-        // TODO
+        this.obstacles.forEach((obstacle) => {
+           if( collision(this.player.playerBox,obstacle.leftBox) || collision(this.player.playerBox,obstacle.rightBox) ){
+               this.gameOver();
+           }
+        });
 
         // Then we call the render method of the renderer to render the game to the screen
         this._renderer.render(this);
