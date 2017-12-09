@@ -1,9 +1,18 @@
+//TODOLIST
 
-const MAP_COLUMNS = 64;
+//increase speed
+//score
+//design
+// STart and restart
+//Audio
+
+
+const MAP_COLUMNS = 32;
 const MAP_ROWS = 48;
-const PLAYER_WIDTH = 3;
-const PLAYER_HEIGHT = 5;
-const PLAYER_SPEED = 24;
+const PLAYER_WIDTH = 2;
+const PLAYER_HEIGHT = 6;
+const PLAYER_SPEED = 10;
+const OBSTACLE_HEIGHT = 3;
 const OBSTACLE_SPEED = 12;
 
 
@@ -12,7 +21,7 @@ class Player
 {
     constructor() {
         this._x = (MAP_COLUMNS - PLAYER_WIDTH) / 2;
-        this._y = MAP_ROWS - PLAYER_HEIGHT;
+        this._y = MAP_ROWS - (PLAYER_HEIGHT + 1);
     }
 
     // Returns the X position of the player
@@ -44,10 +53,9 @@ class Player
     }
 };
 
-
 function randomInt(min, max) {
 
-    return (Math.random() * (max - min)) + min;
+    return Math.ceil((Math.random() * (max - min)) + min);
 }
 
 function collision(r1, r2) {
@@ -60,7 +68,7 @@ function collision(r1, r2) {
 class Obstacle
 {
    constructor(){
-       let spacing = randomInt(PLAYER_WIDTH + 1, PLAYER_WIDTH + 4);
+       let spacing = randomInt(PLAYER_WIDTH + 1, PLAYER_WIDTH + 2);
        let spaceStart = randomInt(0, MAP_COLUMNS - spacing);
        this._leftWidth = spaceStart;
        this._rightX = spaceStart + spacing;
@@ -84,7 +92,7 @@ class Obstacle
             left: 0,
             top: this.y,
             right: this.leftWidth,
-            bottom: this.y + 1
+            bottom: this.y + OBSTACLE_HEIGHT
         }
     }
     get rightBox(){
@@ -92,7 +100,7 @@ class Obstacle
             left: this.rightX,
             top: this.y,
             right: MAP_COLUMNS,
-            bottom: this.y + 1
+            bottom: this.y + OBSTACLE_HEIGHT
         }
     }
 }
@@ -149,7 +157,8 @@ class Game
 
     gameOver(){
         this.stop();
-        alert('lolololololool');
+        this._renderer.detroy();
+        document.querySelector('html').classList.add('gameOver');
     };
 
     update() {
@@ -189,8 +198,7 @@ class Game
 
 class InputManager
 {
-    // The Input manager listen for keyboard events and store the state of each key (pressed/released)
-
+    // The Input manager listen to keyboard events and store the state of each key (pressed/released)
     constructor() {
         // We listen for keydown and keyup events
         window.addEventListener("keydown", (ev) => this._onKeyDown(ev));
@@ -217,20 +225,22 @@ class InputManager
     }
 };
 
-
-
-
 class CanvasRenderer
 {
     // The CanvasRenderer method is responsible of rendering the game
-
-    constructor(canvas)
+    constructor(canvas, fish)
     {
         // When creating a the renderer, we need a canvas passed as a parameter, otherwise where do we render ?
+        canvas.width = canvas.getBoundingClientRect().width;
+        canvas.height = canvas.getBoundingClientRect().height;
         this._canvas = canvas;
+
         // The canvas is able to render in both 2D or 3D. We choose the 2D API: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
         this._ctx = canvas.getContext("2d");
+        this._fish = fish;
+        this.player = document.querySelector('#jellyfish');
     }
+
 
     get columnWidth() {
         // Our canvas is divided in columns and rows: this getter returns the width of a column in pixels
@@ -252,6 +262,11 @@ class CanvasRenderer
         return this._canvas.width;
     }
 
+    detroy()
+    {
+        this._canvas.parentNode.removeChild(this._canvas);
+    }
+
     render(game)
     {
         // We need to clear the screen before drawing
@@ -269,24 +284,28 @@ class CanvasRenderer
 
     _renderObstacle(obstacle)
     {
-        this._ctx.fillStyle = "#FFF";
-        this._ctx.fillRect(                 //left obstacle
-            0,
-            obstacle.y * this.rowHeight,
-            obstacle.leftWidth * this.columnWidth,
-            this.rowHeight
-        );
-
-        this._ctx.fillRect(                 //right obstacle
-
-            obstacle.rightX * this.columnWidth,
-            obstacle.y * this.rowHeight,
-            (MAP_COLUMNS - obstacle.rightX) * this.columnWidth,
-            this.rowHeight
-
-        )
-
-
+        //left obstacle
+        for (let x = 0; x < obstacle.leftWidth; ++x)
+        {
+            this._ctx.drawImage(
+                this._fish,
+                x * this.columnWidth,
+                obstacle.y * this.rowHeight,
+                this.columnWidth,
+                this.rowHeight*3
+            );
+        }
+        //right obstacle
+        for (let x = obstacle.rightX; x < MAP_COLUMNS; ++x)
+        {
+            this._ctx.drawImage(
+                this._fish,
+                x * this.columnWidth,
+                obstacle.y * this.rowHeight,
+                this.columnWidth,
+                this.rowHeight * OBSTACLE_HEIGHT
+            );
+        }
 
     }
 
@@ -296,7 +315,8 @@ class CanvasRenderer
         
         // Here we do some debug rendering: we draw a rectangle of the size of the player
         this._ctx.fillStyle = "#421652";
-        this._ctx.fillRect(
+        this._ctx.drawImage(
+            this.player,
             player.x * this.columnWidth,
             player.y * this.rowHeight,
             PLAYER_WIDTH * this.columnWidth,
@@ -311,7 +331,7 @@ class CanvasRenderer
 };
 
 // Main: everything starts here
-const renderer = new CanvasRenderer(document.querySelector("#game-canvas")); // We start with the instancing of our renderer
+const renderer = new CanvasRenderer(document.querySelector("#game-canvas"), document.querySelector('#fish')); // We start with the instancing of our renderer
 const inputManager = new InputManager(window); // The Input manager listen for keyboard events and store the state of each key (pressed/released)
 const game = new Game(renderer, inputManager); // The game class instance handles all the game informations and logic
 game.start(); // We start the game
