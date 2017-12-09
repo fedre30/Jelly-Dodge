@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Super Game</title>
+    <style>
+        *{--width: 80vw;}
+        html{
+            background: #000;
+        }
+        html.gameOver {
+            background: url('img/gO.jpg');
+            background-size: cover;
+        }
+        body {
+            overflow: hidden;
+        }
+        canvas {
+            border: 1px solid #444;
+            display: block;
+            margin: 0 auto;
+            height: calc(var(--width) / 16 * 10); /* 16:10 is our game screen ratio */
+            width: var(--width);
+        }
+
+        img{
+            display: none;
+        }
+
+        #fish{
+            height: calc((var(--width) / 16 * 10)/48);
+        }
+    </style>
+</head>
+<body>
+    <img src="img/player.png" id="jellyfish">
+    <img src="img/fish.png" id="fish">
+    <img src="img/gO.jpg" id="gameOver">
+    <canvas id="game-canvas"></canvas>
+    <script src="game.js"></script>
+</body>
+</html>
